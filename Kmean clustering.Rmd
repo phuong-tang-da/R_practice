@@ -1,0 +1,75 @@
+---
+title: "PhuongTangAssignment2"
+author: "Phuong Tang"
+date: "05/04/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1.Read and inspect data
+
+```{r}
+# Because the range are different between features, the performance of K-mean clustering model will give higher weight to features with higher range (higher magnitude).Hence, it is recommended to scale the data before applying K-mean model to bring down all features to a similar scale.
+
+df <- read.csv("protein.csv",row.names=1)
+print(summary(df))
+```
+
+# 2.Scale data
+```{r}
+# The scale function helps bring down mean of all features to 0, and narrow the gap between min and max of all features
+df_scaled <- scale(df, center=TRUE, scale=TRUE) 
+summary(df_scaled)
+```
+
+
+# 3.clustering the Red and White meat (p=2), using 3 clusters (k=3) and explain the results
+```{r}
+set.seed(2)
+redwhite = kmeans(df_scaled[,c('RedMeat','WhiteMeat')],3,nstart=20)
+
+# Clustering vector: to let us know which cluster each observation belong to
+redwhite$cluster
+
+# Cluster means: centroid of each cluster
+redwhite$centers
+
+# plot all observation: Based on protein consumption from Red Meat and White Meat. 25 European countries are classified into 3 clusters as below:
+## Green cluster: countries with low protein consumption from both Red Meat and White Meat
+## Blue cluster: countries with high protein consumption from White Meat and low protein consumption from Red Meat
+## Red cluster: countries with medium protein consumption from White Meat and high protein consumption from Red Meat
+
+plot(df_scaled[,c('RedMeat','WhiteMeat')], type="n")  
+text(df_scaled[,c('RedMeat','WhiteMeat')], labels=rownames(df_scaled), 
+     col=rainbow(3)[redwhite$cluster])
+```
+# 4.cluster all 9 protein groups and prepare the program to create 7 clusters
+
+```{r}
+nineprotein= kmeans(df_scaled,7,nstart=50)
+
+# Clustering vector
+nineprotein$cluster
+
+# Cluster means
+nineprotein$centers
+
+# plot all observation on a scatter plot of white meat against red meat
+plot(df_scaled[,c('RedMeat','WhiteMeat')], type="n")  
+text(df_scaled[,c('RedMeat','WhiteMeat')], labels=rownames(df_scaled), 
+     col=rainbow(7)[nineprotein$cluster])
+
+# plot all observation on a scatter plot of egg against milk
+plot(df_scaled[,c('Eggs','Milk')], type="n")  
+text(df_scaled[,c('Eggs','Milk')], labels=rownames(df_scaled), 
+     col=rainbow(7)[nineprotein$cluster])
+
+# Because our data set have 9 features, to visualize the results, we can use PCA to create 2D representation of the Cluster solution
+
+```
+
+
+
